@@ -1,5 +1,6 @@
 site_name: Continuum Knowledge Base
 site_description: Strategies, Playbooks, Ops, and Research
+
 theme:
   name: material
   features:
@@ -7,6 +8,7 @@ theme:
     - navigation.top
     - content.code.copy
     - toc.integrate
+
 nav:
   - Home: index.md
   - Strategies:
@@ -20,12 +22,12 @@ nav:
     - Operator Auto-Execution: playbooks/operator.md
     - IBKR Checklist: playbooks/ibkr-checklist.md
     - Deployment: playbooks/deployment.md
-    - Debugging: playbooks/debugging.md  
+    - Debugging: playbooks/debugging.md
     - SEAL Team Ops: playbooks/seal-team.md
   - Ops:
     - Deploy Status: ops/deploy-status.md
     - Secrets & Env: ops/secrets.md
-    - Monitoring: ops/monitoring.md  
+    - Monitoring: ops/monitoring.md
     - Roadmaps: ops/roadmaps.md
   - Data:
     - Feeds & Adapters: data/feeds.md
@@ -38,42 +40,35 @@ nav:
     - BBBY Bonds: research/bbby-2044.md
     - Macro: research/macro.md
     - ETF Complex: research/etf-complex.md
-    - Catalysts: research/catalysts.md  - Appendix:
+    - Catalysts: research/catalysts.md
   - Architecture:
     - Command Structure: architecture/roles.md
-  - Glossary: appendix/glossary.md
-    - Abbreviations: appendix/abbreviations.md
-    - Tools: appendix/tools.md
-    - References: appendix/refs.md
   - Appendix:
     - Glossary: appendix/glossary.md
     - Abbreviations: appendix/abbreviations.md
     - Tools: appendix/tools.md
     - References: appendix/refs.md
-  markdown_extensions:
-    - admonition
-    - toc:
-        permalink: true
-    - pymdownx.details
+
+markdown_extensions:
+  - admonition
+  - toc:
+      permalink: true
+  - pymdownx.details
   - pymdownx.superfences:
-    custom_fences:
-      - name: mermaid
-        class: mermaid
-        format: !!python/name:pymdownx.superfences.fence_code_format
-    - pymdownx.tabbed
-    - pymdownx.highlight
-    - pymdownx.inlinehilite
-    - pymdownx.snippets
-    - pymdownx.keys
-    - pymdownx.mark
-    - pymdownx.critic
-    - pymdownx.tasklist
-    - pymdownx.arithmatex
-    - pymdownx.superfences:
-        custom_fences:
-          - name: mermaid
-            class: mermaid
-            format: !!python/name:pymdownx.superfences.fence_code_format
-  extra_javascript:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+  - pymdownx.tabbed
+  - pymdownx.highlight
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.keys
+  - pymdownx.mark
+  - pymdownx.critic
+  - pymdownx.tasklist
+  - pymdownx.arithmatex
+
+extra_javascript:
   - https://unpkg.com/mermaid@10/dist/mermaid.min.js
   - javascripts/mermaid-init.js
