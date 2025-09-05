@@ -27,3 +27,4 @@ flowchart LR
   E -- Yes --> F[Operator → IBKR Execution]
   F --> G[Failsafes & Monitoring]
   E -- No --> X[Ignore / Log Only]
+```
