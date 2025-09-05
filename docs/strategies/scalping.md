@@ -1,0 +1,19 @@
+# Scalping Modules (1m/5m)
+
+## Purpose
+Short-hold breakout captures with minute-level fail-safes.
+
+## Inputs (decimal)
+- Momentum: …
+- Compression: …
+- Guards: …
+
+## Entry / Exit
+- Entry: …
+- Fail-safes (first 3 mins): …
+- Targets/Trail: …
+
+## Backtest Notes
+- Universe:
+- Window:
+- Metrics:
