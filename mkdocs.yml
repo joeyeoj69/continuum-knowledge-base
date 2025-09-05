@@ -11,26 +11,35 @@ nav:
   - Home: index.md
   - Strategies:
     - Overview: strategies/index.md
-    - Super-Squeeze+ (Decimal): strategies/super-squeeze.md
-    - Architecture: strategies/architecture.md
+    - Super-Squeeze+: strategies/super-squeeze.md
+    - Scalping Modules: strategies/scalping.md
+    - Orchestrator: strategies/orchestrator.md
+    - Backtesting: strategies/backtesting.md
+    - Risk Management: strategies/risk.md
   - Playbooks:
     - Operator Auto-Execution: playbooks/operator.md
-    - IBKR Paper-to-Live Checklist: playbooks/ibkr-checklist.md
+    - IBKR Checklist: playbooks/ibkr-checklist.md
+    - Deployment: playbooks/deployment.md
+    - Debugging: playbooks/debugging.md
+    - SEAL Team Ops: playbooks/seal-team.md
   - Ops:
-    - Deploy Status Service: ops/deploy-status.md
+    - Deploy Status: ops/deploy-status.md
     - Secrets & Env: ops/secrets.md
+    - Monitoring: ops/monitoring.md
+    - Roadmaps: ops/roadmaps.md
   - Data:
     - Feeds & Adapters: data/feeds.md
+    - Data Lake: data/lake.md
+    - Scraping Pipelines: data/scraping.md
+    - Research Datasets: data/research-datasets.md
   - Research:
-    - GME Dossier: research/gme.md
-    - BBBY 2044 Bonds: research/bbby-2044.md
+    - GME: research/gme.md
+    - BBBY Bonds: research/bbby-2044.md
+    - Macro: research/macro.md
+    - ETF Complex: research/etf-complex.md
+    - Catalysts: research/catalysts.md
   - Appendix:
     - Glossary: appendix/glossary.md
-plugins:
-  - search
-markdown_extensions:
-  - admonition
-  - toc:
-      permalink: true
-  - pymdownx.details
-  - pymdownx.superfences
+    - Abbreviations: appendix/abbreviations.md
+    - Tools: appendix/tools.md
+    - References: appendix/refs.md
