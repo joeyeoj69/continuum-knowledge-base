@@ -29,6 +29,7 @@ nav:
     - Secrets & Env: ops/secrets.md
     - Monitoring: ops/monitoring.md
     - Roadmaps: ops/roadmaps.md
+    - KB Deployment Checklist: ops/kb-deploy-checklist.md
   - Data:
     - Feeds & Adapters: data/feeds.md
     - Data Lake: data/lake.md
@@ -58,7 +59,7 @@ markdown_extensions:
       custom_fences:
         - name: mermaid
           class: mermaid
-          format: !!python/name:pymdownx.superfences.fence_code_format
+          format: !!python/name:pymdownx.superfences.fence_div_format
   - pymdownx.tabbed
   - pymdownx.highlight
   - pymdownx.inlinehilite
