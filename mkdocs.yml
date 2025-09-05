@@ -41,6 +41,8 @@ nav:
     - Macro: research/macro.md
     - ETF Complex: research/etf-complex.md
     - Catalysts: research/catalysts.md  - Appendix:
+  - Architecture:
+    - Command Structure: architecture/roles.md
   - Glossary: appendix/glossary.md
     - Abbreviations: appendix/abbreviations.md
     - Tools: appendix/tools.md
