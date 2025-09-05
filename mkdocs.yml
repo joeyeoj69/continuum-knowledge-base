@@ -49,6 +49,7 @@ nav:
     - Abbreviations: appendix/abbreviations.md
     - Tools: appendix/tools.md
     - References: appendix/refs.md
+  - TODO: TODO.md
 
 markdown_extensions:
   - admonition
