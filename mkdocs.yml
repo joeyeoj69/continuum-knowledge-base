@@ -9,8 +9,6 @@ theme:
     - toc.integrate
 nav:
   - Home: index.md
-  - Architecture:
-    - Command Structure: architecture/roles.md
   - Strategies:
     - Overview: strategies/index.md
     - Super-Squeeze+: strategies/super-squeeze.md
@@ -52,3 +50,27 @@ nav:
     - Abbreviations: appendix/abbreviations.md
     - Tools: appendix/tools.md
     - References: appendix/refs.md
+  markdown_extensions:
+    - admonition
+    - toc:
+        permalink: true
+    - pymdownx.details
+  - pymdownx.superfences:
+    custom_fences:
+      - name: mermaid
+        class: mermaid
+        format: !!python/name:pymdownx.superfences.fence_code_format
+    - pymdownx.tabbed
+    - pymdownx.highlight
+    - pymdownx.inlinehilite
+    - pymdownx.snippets
+    - pymdownx.keys
+    - pymdownx.mark
+    - pymdownx.critic
+    - pymdownx.tasklist
+    - pymdownx.arithmatex
+    - pymdownx.superfences:
+        custom_fences:
+          - name: mermaid
+            class: mermaid
+            format: !!python/name:pymdownx.superfences.fence_code_format
