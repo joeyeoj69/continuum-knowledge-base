@@ -9,6 +9,8 @@ theme:
     - toc.integrate
 nav:
   - Home: index.md
+  - Architecture:
+    - Command Structure: architecture/roles.md
   - Strategies:
     - Overview: strategies/index.md
     - Super-Squeeze+: strategies/super-squeeze.md
@@ -20,12 +22,12 @@ nav:
     - Operator Auto-Execution: playbooks/operator.md
     - IBKR Checklist: playbooks/ibkr-checklist.md
     - Deployment: playbooks/deployment.md
-    - Debugging: playbooks/debugging.md
+    - Debugging: playbooks/debugging.md  
     - SEAL Team Ops: playbooks/seal-team.md
   - Ops:
     - Deploy Status: ops/deploy-status.md
     - Secrets & Env: ops/secrets.md
-    - Monitoring: ops/monitoring.md
+    - Monitoring: ops/monitoring.md  
     - Roadmaps: ops/roadmaps.md
   - Data:
     - Feeds & Adapters: data/feeds.md
@@ -33,11 +35,16 @@ nav:
     - Scraping Pipelines: data/scraping.md
     - Research Datasets: data/research-datasets.md
   - Research:
+    - Index: research/index.md
     - GME: research/gme.md
     - BBBY Bonds: research/bbby-2044.md
     - Macro: research/macro.md
     - ETF Complex: research/etf-complex.md
-    - Catalysts: research/catalysts.md
+    - Catalysts: research/catalysts.md  - Appendix:
+  - Glossary: appendix/glossary.md
+    - Abbreviations: appendix/abbreviations.md
+    - Tools: appendix/tools.md
+    - References: appendix/refs.md
   - Appendix:
     - Glossary: appendix/glossary.md
     - Abbreviations: appendix/abbreviations.md
