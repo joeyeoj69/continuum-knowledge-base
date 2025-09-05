@@ -1,0 +1,36 @@
+site_name: Continuum Knowledge Base
+site_description: Strategies, Playbooks, Ops, and Research
+theme:
+  name: material
+  features:
+    - navigation.tabs
+    - navigation.top
+    - content.code.copy
+    - toc.integrate
+nav:
+  - Home: index.md
+  - Strategies:
+    - Overview: strategies/index.md
+    - Super-Squeeze+ (Decimal): strategies/super-squeeze.md
+    - Architecture: strategies/architecture.md
+  - Playbooks:
+    - Operator Auto-Execution: playbooks/operator.md
+    - IBKR Paper-to-Live Checklist: playbooks/ibkr-checklist.md
+  - Ops:
+    - Deploy Status Service: ops/deploy-status.md
+    - Secrets & Env: ops/secrets.md
+  - Data:
+    - Feeds & Adapters: data/feeds.md
+  - Research:
+    - GME Dossier: research/gme.md
+    - BBBY 2044 Bonds: research/bbby-2044.md
+  - Appendix:
+    - Glossary: appendix/glossary.md
+plugins:
+  - search
+markdown_extensions:
+  - admonition
+  - toc:
+      permalink: true
+  - pymdownx.details
+  - pymdownx.superfences
