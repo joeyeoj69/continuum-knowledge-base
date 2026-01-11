@@ -6,6 +6,9 @@ on:
 jobs:
   sanity:
     runs-on: ubuntu-latest
+    env:
+      PYTHONDONTWRITEBYTECODE: \"1\"
+      PYTHONPYCACHEPREFIX: /tmp/kt-pycache
     steps:
       - uses: actions/checkout@v4
       - name: kernel-tooling version
