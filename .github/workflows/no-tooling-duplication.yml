@@ -1,0 +1,27 @@
+name: no-tooling-duplication
+on:
+  pull_request:
+  push:
+
+jobs:
+  guard:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Fail if duplicated tooling exists
+        run: |
+          set -euo pipefail
+          BAD=0
+          if [ -d tools/ci ]; then
+            while IFS= read -r f; do
+              [ "$f" = "tools/ci/kt-ci" ] && continue
+              echo "forbidden: $f"; BAD=1
+            done < <(find tools/ci -maxdepth 1 -type f -print | sort)
+          fi
+          if [ -d tools/cli ]; then
+            while IFS= read -r f; do
+              [ "$f" = "tools/cli/kt" ] && continue
+              echo "forbidden: $f"; BAD=1
+            done < <(find tools/cli -maxdepth 1 -type f -print | sort)
+          fi
+          test "$BAD" -eq 0

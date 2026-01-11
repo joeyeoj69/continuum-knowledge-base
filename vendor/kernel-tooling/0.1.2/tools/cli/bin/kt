@@ -1,0 +1,226 @@
+#!/usr/bin/env python3
+from __future__ import annotations
+
+import argparse
+import os
+import sys
+from pathlib import Path
+
+# Add local lib/ to path (no external install required).
+_THIS = Path(__file__).resolve()
+_LIB = _THIS.parents[1] / "lib"
+sys.path.insert(0, str(_LIB))
+
+from ktlib.config import ConfigError, KernelToolingConfig, default_config_template, load_config  # type: ignore
+from ktlib.paths import find_config_path, kernel_tooling_root, workspace_root  # type: ignore
+from ktlib.run import RunError, run_shell_commands  # type: ignore
+
+
+def _read_version() -> str:
+    root = kernel_tooling_root()
+    version_file = root / "VERSION"
+    if version_file.exists():
+        return version_file.read_text(encoding="utf-8").strip()
+    return "0.0.0-unknown"
+
+
+def cmd_version(_: argparse.Namespace) -> int:
+    print(_read_version())
+    return 0
+
+
+def cmd_doctor(args: argparse.Namespace) -> int:
+    ws = workspace_root(Path.cwd())
+    kt_root = kernel_tooling_root()
+    config_path = find_config_path(ws)
+
+    ok = True
+
+    print(f"workspace_root: {ws}")
+    print(f"kernel_tooling_root: {kt_root}")
+    print(f"kernel_tooling_version: {_read_version()}")
+
+    py_ok = sys.version_info >= (3, 8)
+    print(f"python: {sys.version.split()[0]} ({'ok' if py_ok else 'too old; need >=3.8'})")
+    ok = ok and py_ok
+
+    if config_path:
+        print(f"config: {config_path}")
+        try:
+            cfg = load_config(config_path)
+            print(f"config.schema_version: {cfg.schema_version}")
+            print(f"ci.tasks: {', '.join(sorted(cfg.ci_tasks.keys())) if cfg.ci_tasks else '(none)'}")
+        except ConfigError as e:
+            print(f"config: invalid ({e})")
+            ok = False
+    else:
+        print("config: not found (expected one of: kernel-tooling.json / kernel-tooling.yaml / kernel-tooling.yml)")
+        if args.require_config:
+            ok = False
+
+    return 0 if ok else 2
+
+
+def _write_file_if_missing(path: Path, content: str, executable: bool = False) -> None:
+    if path.exists():
+        return
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(content, encoding="utf-8")
+    if executable:
+        st = os.stat(path)
+        os.chmod(path, st.st_mode | 0o111)
+
+
+def cmd_init(args: argparse.Namespace) -> int:
+    ws = workspace_root(Path.cwd())
+
+    # 1) Write config template if missing.
+    config_path = ws / "kernel-tooling.json"
+    if not config_path.exists():
+        import json
+
+        config_path.write_text(json.dumps(default_config_template(), indent=2) + "\n", encoding="utf-8")
+        print(f"wrote {config_path}")
+    else:
+        print(f"exists {config_path}")
+
+    # 2) Write thin wrappers (optional but recommended to minimize CI changes).
+    # Wrappers locate kernel-tooling via .kernel-tooling/ (submodule) or vendor/kernel-tooling/ (vendored).
+    ci_wrapper = ws / "tools" / "ci" / "kt-ci"
+    cli_wrapper = ws / "tools" / "cli" / "kt"
+
+    wrapper_common = """#!/usr/bin/env bash
+set -euo pipefail
+
+_find_kt_root() {
+  if [[ -n "${KERNEL_TOOLING_ROOT:-}" ]]; then
+    echo "${KERNEL_TOOLING_ROOT}"
+    return 0
+  fi
+  if [[ -d ".kernel-tooling" ]]; then
+    echo ".kernel-tooling"
+    return 0
+  fi
+  if [[ -d "vendor/kernel-tooling" ]]; then
+    # If vendored with versions, prefer 'current' symlink or the highest version dir.
+    if [[ -L "vendor/kernel-tooling/current" ]]; then
+      echo "vendor/kernel-tooling/current"
+      return 0
+    fi
+    echo "vendor/kernel-tooling"
+    return 0
+  fi
+  echo "ERROR: cannot find kernel-tooling (expected .kernel-tooling or vendor/kernel-tooling). Set KERNEL_TOOLING_ROOT." >&2
+  return 2
+}
+
+KT_ROOT="$(_find_kt_root)"
+"""
+
+    ci_content = wrapper_common + """exec "${KT_ROOT}/tools/ci/kt-ci" "$@"
+"""
+    cli_content = wrapper_common + """exec "${KT_ROOT}/tools/cli/bin/kt" "$@"
+"""
+
+    _write_file_if_missing(ci_wrapper, ci_content, executable=True)
+    _write_file_if_missing(cli_wrapper, cli_content, executable=True)
+
+    if ci_wrapper.exists():
+        print(f"wrapper {ci_wrapper}")
+    if cli_wrapper.exists():
+        print(f"wrapper {cli_wrapper}")
+
+    print("init complete")
+    return 0
+
+
+def cmd_config_validate(args: argparse.Namespace) -> int:
+    ws = workspace_root(Path.cwd())
+    config_path = Path(args.config).resolve() if args.config else find_config_path(ws)
+    if not config_path:
+        print("ERROR: config not found. Create kernel-tooling.json (or set KERNEL_TOOLING_CONFIG).", file=sys.stderr)
+        return 2
+
+    try:
+        _ = load_config(config_path)
+        print(f"ok: {config_path}")
+        return 0
+    except ConfigError as e:
+        print(f"ERROR: {e}", file=sys.stderr)
+        return 2
+
+
+def cmd_ci(args: argparse.Namespace) -> int:
+    ws = workspace_root(Path.cwd())
+    config_path = Path(args.config).resolve() if args.config else find_config_path(ws)
+    if not config_path:
+        print("ERROR: config not found. Create kernel-tooling.json (or set KERNEL_TOOLING_CONFIG).", file=sys.stderr)
+        return 2
+
+    debug = args.debug or os.environ.get("KERNEL_TOOLING_DEBUG", "") in ("1", "true", "TRUE", "yes", "YES")
+    dry_run = args.dry_run
+
+    try:
+        cfg: KernelToolingConfig = load_config(config_path)
+    except ConfigError as e:
+        print(f"ERROR: {e}", file=sys.stderr)
+        return 2
+
+    task = args.task
+    if task not in cfg.ci_tasks:
+        known = ", ".join(sorted(cfg.ci_tasks.keys())) if cfg.ci_tasks else "(none)"
+        print(f"ERROR: unknown ci task '{task}'. Known tasks: {known}", file=sys.stderr)
+        return 2
+
+    try:
+        run_shell_commands(
+            commands=cfg.ci_tasks[task],
+            cwd=ws,
+            env=cfg.env,
+            dry_run=dry_run,
+            debug=debug,
+        )
+        return 0
+    except RunError as e:
+        print(f"ERROR: {e}", file=sys.stderr)
+        return 1
+
+
+def build_parser() -> argparse.ArgumentParser:
+    p = argparse.ArgumentParser(prog="kt", description="kernel-tooling CLI")
+    sub = p.add_subparsers(dest="cmd", required=True)
+
+    sp = sub.add_parser("version", help="Print kernel-tooling version")
+    sp.set_defaults(func=cmd_version)
+
+    sp = sub.add_parser("doctor", help="Environment and config diagnostics")
+    sp.add_argument("--require-config", action="store_true", help="Fail if config is missing")
+    sp.set_defaults(func=cmd_doctor)
+
+    sp = sub.add_parser("init", help="Initialize a downstream repo (write config + wrappers if missing)")
+    sp.set_defaults(func=cmd_init)
+
+    sp = sub.add_parser("config", help="Config utilities")
+    sub2 = sp.add_subparsers(dest="subcmd", required=True)
+    spv = sub2.add_parser("validate", help="Validate config file")
+    spv.add_argument("--config", help="Path to config file (defaults to auto-detect)")
+    spv.set_defaults(func=cmd_config_validate)
+
+    sp = sub.add_parser("ci", help="Run a CI task as defined in config")
+    sp.add_argument("task", help="Task name (e.g., lint/test/build)")
+    sp.add_argument("--config", help="Path to config file (defaults to auto-detect)")
+    sp.add_argument("--dry-run", action="store_true", help="Print commands without executing")
+    sp.add_argument("--debug", action="store_true", help="Enable debug output")
+    sp.set_defaults(func=cmd_ci)
+
+    return p
+
+
+def main(argv: list[str]) -> int:
+    parser = build_parser()
+    args = parser.parse_args(argv)
+    return int(args.func(args))
+
+
+if __name__ == "__main__":
+    raise SystemExit(main(sys.argv[1:]))

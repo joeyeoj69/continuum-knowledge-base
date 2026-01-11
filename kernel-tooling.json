@@ -1,0 +1,16 @@
+{
+  "schema_version": 1,
+  "ci": {
+    "tasks": {
+      "lint": [
+        "echo TODO: set lint"
+      ],
+      "test": [
+        "echo TODO: set test"
+      ],
+      "build": [
+        "echo TODO: set build"
+      ]
+    }
+  }
+}
