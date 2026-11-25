@@ -32,3 +32,4 @@ This checklist ensures a new Continuum Knowledge Base (KB) repo is properly depl
   git add docs/index.md
   git commit -m "chore: trigger pages deploy"
   git push
+  ```

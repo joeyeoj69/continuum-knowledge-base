@@ -31,3 +31,33 @@ environment installed the locked wheels, four security tests passed, and
 with no external script tags or Mermaid loader URL. These are source and build
 results. GitHub Pages deployment, live response headers/CSP, environment
 protections, and Daybreak finding closure require separate provider readback.
+
+## Current-head follow-up
+
+The 2026-11-25 current-head Daybreak run
+`wfr_fa33afa009faa6944b79f95916d8939869382653e1737a0a92b773fe9f50b08d`
+at `main@9d1095a1933bd142709561871270b7d77c6adbcc` reported three
+additional browser paths:
+
+- `csf_24a9ef5068de9df88baedfd3`: Material's pinned bundle still contained
+  a versionless unpkg ResizeObserver loader for legacy browsers. The hardener
+  now removes that loader and uses a local no-op observer when the browser lacks
+  ResizeObserver. Initial layout remains available, though legacy browsers will
+  not receive resize-driven layout updates. A changed pinned theme fails the
+  hardener until this exact replacement is reviewed again.
+- `csf_d5575e5481e78c44b5f6f2a5`: Markdown authoring now rejects raw HTML
+  outside code spans and fences. The generated-page gate permits only the
+  pinned theme's three hashed executable inline scripts, one inert JSON config
+  script, and its exact local bundle. It rejects extra scripts, event handlers,
+  executable URL schemes, `srcdoc`, `<base>`, embedded frames, and remote
+  stylesheet links. The repository currently has no authored HTML requirement.
+- `csf_f0c18369ac96cf76f71152bc`: `theme.font: false` uses system fonts and
+  removes Google Fonts stylesheet and preconnect requests. The hardener rejects
+  these URLs if a later theme or config change reintroduces them. This follows
+  the [Material font configuration](https://squidfunk.github.io/mkdocs-material/setup/changing-the-fonts/).
+
+The previously unclosed code fence in the deployment checklist was closed so
+the new Markdown gate can distinguish authored code from active markup. The
+checked-in `site/` is generated output and must be rebuilt and hardened together
+with any source change. Source, CI, deployment, and a paid Daybreak rescan remain
+separate acceptance steps; this change alone does not close a finding.
