@@ -61,3 +61,10 @@ the new Markdown gate can distinguish authored code from active markup. The
 checked-in `site/` is generated output and must be rebuilt and hardened together
 with any source change. Source, CI, deployment, and a paid Daybreak rescan remain
 separate acceptance steps; this change alone does not close a finding.
+
+The Pages workflow now runs its `build` job on every pull request rather than
+using path filters. Both jobs use Ubuntu 24.04, and the build selects Python
+3.11.18 exactly; the regression test binds all four official action SHAs. This
+makes `build` suitable for a strict required-check rule. Repository enforcement
+must still require that exact context, one independent last-push approval,
+stale-review dismissal, resolved review threads, and no bypass before merge.

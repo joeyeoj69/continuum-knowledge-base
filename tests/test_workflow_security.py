@@ -16,6 +16,8 @@ class PagesWorkflowSecurityTests(unittest.TestCase):
         workflow = yaml.safe_load(source)
         build = workflow["jobs"]["build"]
         deploy = workflow["jobs"]["deploy"]
+        self.assertEqual(build["runs-on"], "ubuntu-24.04")
+        self.assertEqual(deploy["runs-on"], "ubuntu-24.04")
         self.assertEqual(build["permissions"], {"contents": "read"})
         self.assertEqual(deploy["permissions"], {"pages": "write", "id-token": "write"})
         self.assertEqual(deploy["if"], "github.event_name == 'push'")
@@ -26,13 +28,29 @@ class PagesWorkflowSecurityTests(unittest.TestCase):
             for step in job["steps"]
             if "uses" in step
         ]
-        self.assertEqual(len(references), 4)
-        for reference in references:
-            self.assertRegex(reference, r"^[\w-]+/[\w-]+@[0-9a-f]{40}$")
+        self.assertEqual(
+            references,
+            [
+                "actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+                "actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065",
+                "actions/upload-pages-artifact@56afc609e74202658d3ffba0e8f6dda462b719fa",
+                "actions/deploy-pages@d6db90164ac5ed86f2b6aed7e0febac5b3c0c03e",
+            ],
+        )
         checkout = build["steps"][0]
         self.assertIs(checkout["with"]["persist-credentials"], False)
+        setup_python = build["steps"][1]
+        self.assertEqual(setup_python["with"]["python-version"], "3.11.18")
         self.assertIn("--require-hashes -r requirements-docs.lock", source)
         self.assertIn("python scripts/harden_site.py", source)
+
+    def test_build_is_an_always_run_pull_request_gate(self) -> None:
+        source = (ROOT / ".github/workflows/pages.yml").read_text(encoding="utf-8")
+        workflow = yaml.load(source, Loader=yaml.BaseLoader)
+        triggers = workflow["on"]
+        self.assertIn("pull_request", triggers)
+        self.assertFalse(triggers["pull_request"])
+        self.assertNotIn("paths:", source)
 
     def test_every_locked_package_has_a_full_wheel_hash(self) -> None:
         lock = (ROOT / "requirements-docs.lock").read_text(encoding="utf-8")
