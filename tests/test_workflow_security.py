@@ -43,6 +43,7 @@ class PagesWorkflowSecurityTests(unittest.TestCase):
         self.assertEqual(setup_python["with"]["python-version"], "3.11.18")
         self.assertIn("--require-hashes -r requirements-docs.lock", source)
         self.assertIn("python scripts/harden_site.py", source)
+        self.assertIn("git diff --exit-code -- site", source)
 
     def test_build_is_an_always_run_pull_request_gate(self) -> None:
         source = (ROOT / ".github/workflows/pages.yml").read_text(encoding="utf-8")
@@ -51,6 +52,20 @@ class PagesWorkflowSecurityTests(unittest.TestCase):
         self.assertIn("pull_request", triggers)
         self.assertFalse(triggers["pull_request"])
         self.assertNotIn("paths:", source)
+
+    def test_deploy_example_has_byte_stable_shell_highlighting(self) -> None:
+        checklist = (ROOT / "docs/ops/kb-deploy-checklist.md").read_text(
+            encoding="utf-8"
+        )
+        self.assertIn(
+            "echo >> docs/index.md\n"
+            "  git add docs/index.md\n"
+            "  git commit -m chore-trigger-pages-deploy\n"
+            "  git push",
+            checklist,
+        )
+        self.assertNotIn('echo "" >> docs/index.md', checklist)
+        self.assertNotIn('git commit -m "chore: trigger pages deploy"', checklist)
 
     def test_every_locked_package_has_a_full_wheel_hash(self) -> None:
         lock = (ROOT / "requirements-docs.lock").read_text(encoding="utf-8")

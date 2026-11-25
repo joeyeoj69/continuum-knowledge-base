@@ -28,8 +28,8 @@ This checklist ensures a new Continuum Knowledge Base (KB) repo is properly depl
 ## 3. Trigger Deploy
 - [ ] Push a trivial commit to `main` to trigger the Pages workflow:
   ```bash
-  echo "" >> docs/index.md
+  echo >> docs/index.md
   git add docs/index.md
-  git commit -m "chore: trigger pages deploy"
+  git commit -m chore-trigger-pages-deploy
   git push
   ```
