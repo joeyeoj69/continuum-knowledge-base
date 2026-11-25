@@ -1,10 +1,5 @@
 # Strategy Architecture
 
-```mermaid
-flowchart LR
-  A[Bars] --> B[Indicators]
-  B --> C[Decimal Features]
-  C --> D[Scorer]
-  D --> E{A+?}
-  E -- Yes --> F[Operator → IBKR]
-```
+Bars → Indicators → Decimal Features → Scorer → A+ check.
+
+An A+ result goes to the operator for IBKR execution.

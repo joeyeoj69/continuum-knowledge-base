@@ -326,6 +326,25 @@
   
 
       
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../TODO/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  TODO
+
+      </a>
+    </li>
+  
+
+      
     </ul>
   </div>
 </nav>
@@ -855,6 +874,29 @@
   
   <span class="md-ellipsis">
     Roadmaps
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../ops/kb-deploy-checklist/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    KB Deployment Checklist
     
   </span>
   
@@ -1519,6 +1561,28 @@
   
 
     
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../TODO/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    TODO
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
   </ul>
 </nav>
                   </div>
@@ -1591,16 +1655,57 @@
 </ul>
 <hr />
 <h2 id="propaganda-diagram">🔄 Propaganda Diagram<a class="headerlink" href="#propaganda-diagram" title="Permanent link">&para;</a></h2>
-<p>```mermaid
-flowchart TB
-    Captain((👨‍✈️ Captain)) --&gt;|Vision &amp; Orders| FirstMate((🤖 First Mate))
-    Captain --&gt;|Commands| Helm((🧭 Helm - Slack/PWA))
-    FirstMate --&gt;|Advice &amp; Playbooks| Helm
-    Helm --&gt;|JSON Commands| EngineRoom((🔧 Engine Room - Operator))
-    EngineRoom --&gt;|Executes| Ship((🚢 Ship - Continuum Stack))
-    Ship --&gt;|Trades/Data| Markets((💹 Markets))
-    Markets --&gt;|Feedback| Ship
-    Ship --&gt;|Status &amp; Logs| Helm</p>
+<table>
+<thead>
+<tr>
+<th>From</th>
+<th>Handoff</th>
+<th>To</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Captain</td>
+<td>Vision and orders</td>
+<td>First Mate</td>
+</tr>
+<tr>
+<td>Captain</td>
+<td>Commands</td>
+<td>Helm (Slack/PWA)</td>
+</tr>
+<tr>
+<td>First Mate</td>
+<td>Advice and playbooks</td>
+<td>Helm</td>
+</tr>
+<tr>
+<td>Helm</td>
+<td>JSON commands</td>
+<td>Engine Room (operator)</td>
+</tr>
+<tr>
+<td>Engine Room</td>
+<td>Executes</td>
+<td>Ship (Continuum stack)</td>
+</tr>
+<tr>
+<td>Ship</td>
+<td>Trades and data</td>
+<td>Markets</td>
+</tr>
+<tr>
+<td>Markets</td>
+<td>Feedback</td>
+<td>Ship</td>
+</tr>
+<tr>
+<td>Ship</td>
+<td>Status and logs</td>
+<td>Helm</td>
+</tr>
+</tbody>
+</table>
 
 
 
@@ -1659,10 +1764,6 @@ flowchart TB
     
     
       <script src="../../assets/javascripts/bundle.92b07e13.min.js"></script>
-      
-        <script src="https://unpkg.com/mermaid@10/dist/mermaid.min.js"></script>
-      
-        <script src="../../javascripts/mermaid-init.js"></script>
       
     
   </body>
