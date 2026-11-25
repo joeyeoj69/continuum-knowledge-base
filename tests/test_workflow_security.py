@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 import re
+import subprocess
+import tempfile
 import unittest
 from pathlib import Path
 
@@ -43,7 +45,7 @@ class PagesWorkflowSecurityTests(unittest.TestCase):
         self.assertEqual(setup_python["with"]["python-version"], "3.11.18")
         self.assertIn("--require-hashes -r requirements-docs.lock", source)
         self.assertIn("python scripts/harden_site.py", source)
-        self.assertIn("git diff --exit-code -- site", source)
+        self.assertIn("bash scripts/check_generated_site.sh", source)
 
     def test_build_is_an_always_run_pull_request_gate(self) -> None:
         source = (ROOT / ".github/workflows/pages.yml").read_text(encoding="utf-8")
@@ -66,6 +68,41 @@ class PagesWorkflowSecurityTests(unittest.TestCase):
         )
         self.assertNotIn('echo "" >> docs/index.md', checklist)
         self.assertNotIn('git commit -m "chore: trigger pages deploy"', checklist)
+
+    def test_generated_site_guard_rejects_tracked_and_untracked_output(self) -> None:
+        guard = ROOT / "scripts/check_generated_site.sh"
+        source = guard.read_text(encoding="utf-8")
+        self.assertIn("git diff --exit-code -- site", source)
+        self.assertIn("git ls-files --others --exclude-standard -z -- site", source)
+
+        with tempfile.TemporaryDirectory() as directory:
+            repo = Path(directory)
+            site = repo / "site"
+            site.mkdir()
+            tracked = site / "tracked.txt"
+            tracked.write_text("reviewed\n", encoding="utf-8")
+            subprocess.run(["git", "init", "-q"], cwd=repo, check=True)
+            subprocess.run(["git", "add", "site/tracked.txt"], cwd=repo, check=True)
+
+            clean = subprocess.run(
+                ["bash", str(guard)], cwd=repo, text=True, capture_output=True
+            )
+            self.assertEqual(clean.returncode, 0, clean.stderr)
+
+            untracked = site / "unreviewed.js"
+            untracked.write_text("alert(1)\n", encoding="utf-8")
+            rejected = subprocess.run(
+                ["bash", str(guard)], cwd=repo, text=True, capture_output=True
+            )
+            self.assertNotEqual(rejected.returncode, 0)
+            self.assertIn("untracked generated site files", rejected.stderr)
+            untracked.unlink()
+
+            tracked.write_text("changed\n", encoding="utf-8")
+            rejected = subprocess.run(
+                ["bash", str(guard)], cwd=repo, text=True, capture_output=True
+            )
+            self.assertNotEqual(rejected.returncode, 0)
 
     def test_every_locked_package_has_a_full_wheel_hash(self) -> None:
         lock = (ROOT / "requirements-docs.lock").read_text(encoding="utf-8")
