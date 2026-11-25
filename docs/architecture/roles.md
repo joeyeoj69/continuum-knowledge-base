@@ -56,13 +56,13 @@
 
 ## 🔄 Propaganda Diagram
 
-```mermaid
-flowchart TB
-    Captain((👨‍✈️ Captain)) -->|Vision & Orders| FirstMate((🤖 First Mate))
-    Captain -->|Commands| Helm((🧭 Helm - Slack/PWA))
-    FirstMate -->|Advice & Playbooks| Helm
-    Helm -->|JSON Commands| EngineRoom((🔧 Engine Room - Operator))
-    EngineRoom -->|Executes| Ship((🚢 Ship - Continuum Stack))
-    Ship -->|Trades/Data| Markets((💹 Markets))
-    Markets -->|Feedback| Ship
-    Ship -->|Status & Logs| Helm
+| From | Handoff | To |
+| --- | --- | --- |
+| Captain | Vision and orders | First Mate |
+| Captain | Commands | Helm (Slack/PWA) |
+| First Mate | Advice and playbooks | Helm |
+| Helm | JSON commands | Engine Room (operator) |
+| Engine Room | Executes | Ship (Continuum stack) |
+| Ship | Trades and data | Markets |
+| Markets | Feedback | Ship |
+| Ship | Status and logs | Helm |

@@ -1,0 +1,2 @@
+site/** linguist-generated=true
+site/assets/javascripts/*.min.js -diff
