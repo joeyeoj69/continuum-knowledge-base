@@ -73,7 +73,8 @@ class PagesWorkflowSecurityTests(unittest.TestCase):
         guard = ROOT / "scripts/check_generated_site.sh"
         source = guard.read_text(encoding="utf-8")
         self.assertIn("git diff --exit-code -- site", source)
-        self.assertIn("git ls-files --others --exclude-standard -z -- site", source)
+        self.assertIn("git ls-files --others -z -- site", source)
+        self.assertNotIn("--exclude-standard", source)
 
         with tempfile.TemporaryDirectory() as directory:
             repo = Path(directory)
@@ -97,6 +98,16 @@ class PagesWorkflowSecurityTests(unittest.TestCase):
             self.assertNotEqual(rejected.returncode, 0)
             self.assertIn("untracked generated site files", rejected.stderr)
             untracked.unlink()
+
+            (repo / ".gitignore").write_text("site/ignored.js\n", encoding="utf-8")
+            ignored = site / "ignored.js"
+            ignored.write_text("alert(2)\n", encoding="utf-8")
+            rejected = subprocess.run(
+                ["bash", str(guard)], cwd=repo, text=True, capture_output=True
+            )
+            self.assertNotEqual(rejected.returncode, 0)
+            self.assertIn("site/ignored.js", rejected.stderr)
+            ignored.unlink()
 
             tracked.write_text("changed\n", encoding="utf-8")
             rejected = subprocess.run(
