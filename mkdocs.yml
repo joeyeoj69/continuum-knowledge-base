@@ -3,6 +3,7 @@ site_description: Strategies, Playbooks, Ops, and Research
 
 theme:
   name: material
+  font: false
   features:
     - navigation.tabs
     - navigation.top
