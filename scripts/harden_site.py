@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import argparse
+import gzip
 import hashlib
 import re
 from html.parser import HTMLParser
@@ -186,6 +187,20 @@ def harden_site(site: Path, docs: Path) -> tuple[int, int]:
     maps = list(site.rglob("*.map"))
     for path in maps:
         path.unlink()
+
+    # MkDocs writes the current wall-clock time into the sitemap gzip header.
+    # Re-encode the same reviewed XML with fixed metadata so a locked rebuild is
+    # byte-for-byte identical and the generated-site diff gate is meaningful.
+    sitemap = site / "sitemap.xml"
+    sitemap_gzip = site / "sitemap.xml.gz"
+    if sitemap_gzip.exists():
+        if not sitemap.is_file():
+            raise ValueError("compressed sitemap exists without sitemap.xml")
+        with sitemap_gzip.open("wb") as output:
+            with gzip.GzipFile(
+                filename="", mode="wb", compresslevel=9, fileobj=output, mtime=0
+            ) as archive:
+                archive.write(sitemap.read_bytes())
 
     for path in docs.rglob("*.md"):
         reject_raw_html(path)

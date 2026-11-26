@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import gzip
 import tempfile
 import unittest
 from pathlib import Path
@@ -79,6 +80,26 @@ class PublishedSiteSecurityTests(unittest.TestCase):
             path = Path(directory) / "safe.md"
             path.write_text("`<script>x</script>`\n```html\n<script>x</script>\n```\n", encoding="utf-8")
             reject_raw_html(path)
+
+    def test_sitemap_gzip_is_byte_stable(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            site, docs, _ = self.make_site(Path(directory))
+            sitemap = site / "sitemap.xml"
+            sitemap_gzip = site / "sitemap.xml.gz"
+            sitemap.write_bytes(b"<?xml version='1.0'?><urlset/>\n")
+            with sitemap_gzip.open("wb") as output:
+                with gzip.GzipFile(
+                    filename="sitemap.xml", mode="wb", fileobj=output, mtime=123
+                ) as archive:
+                    archive.write(sitemap.read_bytes())
+
+            harden_site(site, docs)
+            first = sitemap_gzip.read_bytes()
+            self.assertEqual(gzip.decompress(first), sitemap.read_bytes())
+            self.assertEqual(int.from_bytes(first[4:8], "little"), 0)
+
+            harden_site(site, docs)
+            self.assertEqual(sitemap_gzip.read_bytes(), first)
 
 
 if __name__ == "__main__":

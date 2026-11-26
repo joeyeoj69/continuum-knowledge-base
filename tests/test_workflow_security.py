@@ -23,6 +23,14 @@ class PagesWorkflowSecurityTests(unittest.TestCase):
         self.assertEqual(build["permissions"], {"contents": "read"})
         self.assertEqual(deploy["permissions"], {"pages": "write", "id-token": "write"})
         self.assertEqual(deploy["if"], "github.event_name == 'push'")
+        self.assertEqual(deploy["needs"], "build")
+        self.assertEqual(
+            deploy["environment"],
+            {
+                "name": "github-pages",
+                "url": "${{ steps.deployment.outputs.page_url }}",
+            },
+        )
 
         references = [
             step["uses"]
@@ -33,16 +41,20 @@ class PagesWorkflowSecurityTests(unittest.TestCase):
         self.assertEqual(
             references,
             [
-                "actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
-                "actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065",
-                "actions/upload-pages-artifact@56afc609e74202658d3ffba0e8f6dda462b719fa",
-                "actions/deploy-pages@d6db90164ac5ed86f2b6aed7e0febac5b3c0c03e",
+                "actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+                "actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0",
+                "actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9",
+                "actions/deploy-pages@368f82528645a54fb793d4d04e342629a3f51346",
             ],
         )
         checkout = build["steps"][0]
         self.assertIs(checkout["with"]["persist-credentials"], False)
         setup_python = build["steps"][1]
         self.assertEqual(setup_python["with"]["python-version"], "3.11.18")
+        upload = build["steps"][-1]
+        self.assertEqual(upload["if"], "github.event_name == 'push'")
+        self.assertEqual(upload["with"], {"path": "site"})
+        self.assertEqual(deploy["steps"], [{"id": "deployment", "uses": references[-1]}])
         self.assertIn("--require-hashes -r requirements-docs.lock", source)
         self.assertIn("python scripts/harden_site.py", source)
         self.assertIn("bash scripts/check_generated_site.sh", source)
@@ -51,6 +63,7 @@ class PagesWorkflowSecurityTests(unittest.TestCase):
         source = (ROOT / ".github/workflows/pages.yml").read_text(encoding="utf-8")
         workflow = yaml.load(source, Loader=yaml.BaseLoader)
         triggers = workflow["on"]
+        self.assertEqual(triggers["push"]["branches"], ["main"])
         self.assertIn("pull_request", triggers)
         self.assertFalse(triggers["pull_request"])
         self.assertNotIn("paths:", source)
