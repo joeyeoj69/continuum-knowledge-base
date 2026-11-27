@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Public CI entrypoint.
+#
+# Downstream repos should call this script (directly or via a thin wrapper) instead of
+# maintaining their own `tools/ci/*` implementations.
+#
+# This wrapper delegates to the canonical CLI implementation to ensure CI + CLI stay consistent.
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+exec "${SCRIPT_DIR}/../cli/bin/kt" ci "$@"
